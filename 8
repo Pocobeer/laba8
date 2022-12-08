@@ -1,0 +1,235 @@
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+ofstream fout;
+ifstream fin;
+
+string fname1, fname2;    //для имен файлов
+
+int stCount = 10,         //кол-во страниц и строк, если создаем файл в программе
+pgCount = 1;
+
+
+const int KEY_ESC = 27;            //постоянаая ascii кода клавиши ESC
+
+char ch, want, trigger, answer, answer1;            //рабочие переменные
+string str;
+
+bool CheckContinue()         //функция проверки желания пользователя продолжить. 
+{
+	cout << "Do you want continue?"; cin.get(want);
+	if (want == KEY_ESC) return false;
+	return true;
+}
+
+void EnterName1()  //Функция для задания имени первого файла с повторным вводом при его некорректности
+{
+	fout.open(fname1);
+	while (!fout.is_open())
+	{
+		cout << "Error! File 1 is not open!" << endl;
+		cout << "Try again." << endl;
+		cin >> fname1;
+		fout.open(fname1);
+	}
+	cout << endl << "Enter File 1 succes!" << endl << endl;
+}
+
+void EnterName2()     // функция имени для второго файла
+{
+	cout << "Enter File 2 name: ";
+	cin >> fname2;
+	fout.open(fname2);
+	while (!fout.is_open())
+	{
+		cout << "Error! File 2 is not open!" << endl;
+		cout << "Try again." << endl;
+		cin >> fname2;
+		fout.open(fname2);
+	}
+	cout << endl << "Enter File 2 succes!" << endl << endl;
+}
+
+void CreateInput()    //Функция создания файла для будущего чтения (первого файла), если пользователь захочет сам набрать текст для будущего форматирования
+{
+	cout << "Enter page count in your file (1 - 10). : ";
+	cin >> pgCount;
+	while (pgCount < 1 || pgCount > 10)
+	{
+		cout << "Error! Uncorrect input!" << endl
+			<< "Try again." << endl;
+		cin >> pgCount;
+	}
+	cout << "and string count on one page (5 - 20): ";
+	cin >> stCount;
+	while (stCount < 5 || stCount > 20)
+	{
+		cout << "Error! Uncorrect input!" << endl
+			<< "Try again." << endl;
+		cin >> stCount;
+	}
+	cout << "Enter your text, please!" << endl;
+	for (int i = 0; i < pgCount; i++)
+	{
+		for (int j = -1; j < stCount; j++)
+		{
+			getline(cin, str);
+			if (str.length() > 50) {
+				cout << "String length is very big!";
+				ch = '!';
+				exit(0);
+			}
+			fout << j+1 << ". " << str << '\n';
+		}
+		fout << '\n' << "#############################" << i + 1 << "#############################" << "\n\n";
+		if (i == 0) stCount--;
+	}
+}
+
+void OpenInput()      //Функция открывающая файл для чтения с проверкой на успешность операции
+{
+	fin.open(fname1, ios_base::in);
+	while (!fin.is_open())
+	{
+		cout << "Error! File 1 is not found!" << endl;
+		cout << "Try again. Enter correct file name." << endl;
+		cin >> fname1;
+		fin.open(fname1);
+	}
+	cout << endl << "File 1: Succes!" << endl << endl;
+}
+
+void CreateOutput()           //Создание выходного файла. 
+{
+	while (!fin.eof()) {
+		getline(fin, str);
+		for (int i = 0; i < str.length(); i++) {
+			fout << str[i];
+			if (str[i] == trigger) {
+				i++;
+				while (str[i] != trigger && i < str.length())
+				{
+					i++;
+				}
+				if (str[i] == trigger)
+					fout << str[i];
+			}
+		}
+		fout << '\n';
+	}
+	cout << "File is succesfully create!" << endl << endl;
+}
+
+
+void PrintOut() {
+	string str1;
+
+	char ch;		//текущий символ
+	int len = -1;	//len = -1, если не всретили trigger, len > 0 - втретили trigger
+
+	while ((ch = fin.get()) != EOF)		//считали 1 символ
+	{
+		if (ch == trigger) {
+			// write_state *= -1;
+			if (len == -1) {
+				len = str1.size();
+			}
+			else {
+				str1.resize(len);
+				len = -1;
+				continue;
+			}
+		}
+		str1 += ch;
+		if (ch == '\n') {
+			// write_state = 1;
+			len = -1;
+			fout << str1;
+			str1 = "";
+		}
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	setlocale(0, "");
+	//for (int i1 = 1; i1<argc; i1++)
+		//cout << argv[i1] << endl;
+	cout << "Удаление из каждой строки последовательности символов, ограниченных с обеих сторон заданным символом\n\n";
+	cout << " Ввод даннных [С клавиатуры : 1, Из командной строки : 0]: ";
+	cin >> answer;
+	cin.get();
+	if (answer == '0')
+	{
+		cout << " Вы уверены, что хотите ввести данные из командной строки? [Да - 1, Нет - 0] ";
+		cin >> answer1;
+		cout << endl;
+		if (answer1 == '0')
+			exit(1);
+		if (answer1 == '1')
+		{
+			// Контроль числа параметров и справка
+			if (argc != 5)
+			{
+				cout << " Ошибка в командной строке\n";
+				exit(2);
+			}
+
+			// Получение имен файлов
+			
+		}
+			
+	}
+	cout << "Enter file name: ";
+	cin >> fname1;
+
+	cout << "Create a new file OR use an existing one? (n/e)";    // использовать готовый файл или же создать свой 
+	cin >> want;
+
+	if (want == 'n') {
+		cin.get();
+		CheckContinue();
+		if (CheckContinue == 0) {
+			cout << "Programm is over." << endl;
+			system("pause");
+			return 0;
+		}
+
+		EnterName1();
+		CreateInput();
+		fout.close();
+	}
+	 //выводим содержимове первого файла в консоль.
+
+	cin.get();
+
+	CheckContinue();
+	if (CheckContinue == 0) {
+		cout << "Programm is over." << endl;
+		system("pause");
+		return 0;
+	}
+
+	cout << "Create Second file for output" << endl;
+	EnterName2();
+	OpenInput();
+	cin.get();
+	cout << "Enter trigger char:";
+	cin.get(trigger);
+	PrintOut();
+	// cout << "File is succesfully create!" << endl << endl;
+	fin.close();
+	fout.close();
+	string inp = "0";
+	string type1 = "type " + fname1;
+	cout << "Входной файл: \n";
+	system(type1.c_str());
+	string type2 = "type " + fname2;
+	cout << "Выходной файл: \n";
+	system(type2.c_str());       //выводим содержимове второго файла в консоль. 
+	system("pause");
+}
