@@ -27,14 +27,14 @@ void CREATE_FILE_(bool X)
 {
 
     setlocale(0, "");
-    if (X == '0') {
+    if (X == 0) {
         cout << "Создать новый файл или использовать уже существующий?(New/Exist): ";
         cin >> in_bool;
     }
     if (in_bool == "N")
     {
-        if (X == '0') {
-            printf("Введите название выходного файла: ");
+        if (X == 0) {
+            printf("Введите название входного файла: ");
             cin >> fname1;
         }
         fout.open(fname1);
@@ -46,13 +46,38 @@ void CREATE_FILE_(bool X)
         }
 
         cout << "\nФайл был успешно создан\n";
-        int stcount;
-        cin.clear();
-        cout << "Введите количество строк: ";
-        cin >> stcount;
-        for (int i = -1; i != stcount; i++) {
-            getline(cin, str, '\n');
-            fout << str << '\n';
+        int stCount, pgCount;
+        cout << "Введите количество страниц (1 - 10). : ";
+        cin >> pgCount;
+        while (pgCount < 1 || pgCount > 10)
+        {
+            cout << "Ошибка, некорректный ввод!" << endl
+                << "Попробуйте снова." << endl;
+            cin >> pgCount;
+        }
+        cout << "и количество строк на странице (5 - 15): ";
+        cin >> stCount;
+        while (stCount < 5 || stCount > 15)
+        {
+            cout << "Ошибка, некорректный ввод!" << endl
+                << "Попробуйте снова." << endl;
+            cin >> stCount;
+        }
+        cout << "ВВедите текст" << endl;
+        for (int i = 0; i < pgCount; i++)
+        {
+            for (int j = -1; j < stCount; j++)
+            {
+                getline(cin, str);
+                if (str.length() > 30) {
+                    cout << "Длина строки слишком большая!";
+                    ch = '!';
+                    return;
+                }
+                fout  << j+1 << ". " << str << '\n';
+            }
+            fout << '\n' << "#############################" << i + 1 << "#############################" << "\n\n";
+            if (i == 0) stCount--;
         }
     }
     else {
@@ -83,7 +108,7 @@ void EnterTrigger(bool X)  //Функция для задания триггер
         cin >> trigger;
         cin.clear();
     }
-    printf("Триггер:%с", trigger.c_str());
+    printf("Триггер:%s", trigger.c_str());
 }
 
 void EnterName2(bool X)     //Аналогичная предыдущей функция для второго файла
@@ -105,7 +130,6 @@ void EnterName2(bool X)     //Аналогичная предыдущей фун
     }
 }
 
-
 void OpenInput()      //Функция открывающая файл для чтения с проверкой на успешность операции
 {
     fin.open(fname1, ios_base::in);
@@ -118,59 +142,58 @@ void OpenInput()      //Функция открывающая файл для ч
     }
 }
 
-void CreateOutput()
+void CreateOutput()           //Создание выходного файла. 
 {
-    char ch;
     trigger = trigger.c_str();
     char* ctrigger = &trigger[0];
-    while (!fin.eof()) {
-        getline(fin, str);
-        for (int i = 0; i < str.length(); i++) {
-            fout << str[i];
-            if (str[i] == *ctrigger) {
-                i++;
-                while (str[i] != *ctrigger && i < str.length())
-                {
-                    i++;
-                }
-                if (str[i] == *ctrigger)
-                    fout << str[i];
-            }
-        }
-        fout << '\n';
-    }
-    cout << "\nФайл успешно создан" << endl << endl;
+	while (!fin.eof()) {
+		getline(fin, str);
+		for (int i = 0; i < str.length(); i++) {
+			fout << str[i];
+			if (str[i] == *ctrigger) {
+				i++;
+				while (str[i] != *ctrigger && i < str.length())
+				{
+					i++;
+				}
+				if (str[i] == *ctrigger)
+					fout << str[i];
+			}
+		}
+		fout << '\n';
+	}
+	cout << "File is succesfully create!" << endl << endl;
 }
 
-void PrintOut() {
-    string str1;
 
-    char ch;		//текущий символ
+void PrintOut() {
+	string str;
+
+	char ch;		//текущий символ
+	int len = -1;	//len = -1, если не всретили trigger, len > 0 - втретили trigger
     trigger = trigger.c_str();
     char* ctrigger = &trigger[0];
-    int len = -1;	//len = -1, если не всретили trigger, len > 0 - втретили trigger
-
-    while ((ch = fin.get()) != EOF)		//считали 1 символ
-    {
-        if (ch == *ctrigger) {
-            // write_state *= -1;
-            if (len == -1) {
-                len = str1.size();
-            }
-            else {
-                str1.resize(len);
-                len = -1;
-                continue;
-            }
-        }
-        str1 += ch;
-        if (ch == '\n') {
-            // write_state = 1;
-            len = -1;
-            fout << str1;
-            str1 = "";
-        }
-    }
+	while ((ch = fin.get()) != EOF)		//считали 1 символ
+	{
+		if (ch == *ctrigger) {
+			// write_state *= -1;
+			if (len == -1) {
+				len = str.size();
+			}
+			else {
+				str.resize(len);
+				len = -1;
+				continue;
+			}
+		}
+		str += ch;
+		if (ch == '\n') {
+			// write_state = 1;
+			len = -1;
+			fout << str;
+			str = "";
+		}
+	}
 }
 
 int main(int argc, char* argv[])   //...и сама функция main
@@ -191,7 +214,6 @@ int main(int argc, char* argv[])   //...и сама функция main
     CREATE_FILE_(CHOOSE);
     if (CHOOSE == 1 && argc >4) {
         trigger = argv[3];;
-        printf("Триггер: %c", trigger.c_str());
         //string trigger = trigger;
     }
     EnterTrigger(CHOOSE);
@@ -200,7 +222,7 @@ int main(int argc, char* argv[])   //...и сама функция main
     inp = argv[5];
     
     OpenInput();
-    CreateOutput();
+    PrintOut();
     fin.close();
     fout.close();
 
