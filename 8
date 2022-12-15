@@ -55,9 +55,9 @@ void CREATE_FILE_(bool X)
                 << "Попробуйте снова." << endl;
             cin >> pgCount;
         }
-        cout << "и количество строк на странице (5 - 15): ";
+        cout << "и количество строк на странице (5 - 20): ";
         cin >> stCount;
-        while (stCount < 5 || stCount > 15)
+        while (stCount < 5 || stCount > 20)
         {
             cout << "Ошибка, некорректный ввод!" << endl
                 << "Попробуйте снова." << endl;
@@ -68,15 +68,15 @@ void CREATE_FILE_(bool X)
         {
             for (int j = -1; j < stCount; j++)
             {
-                getline(cin, str);
+                getline(cin, str, '\n');
                 if (str.length() > 30) {
                     cout << "Длина строки слишком большая!";
                     ch = '!';
-                    return;
+                    exit(0);
                 }
-                fout  << j+1 << ". " << str << '\n';
+                fout << str << '\n';
             }
-            fout << '\n' << "#############################" << i + 1 << "#############################" << "\n\n";
+            fout << '\n' << "#############################" << i + 1 << "#############################" << "\n";
             if (i == 0) stCount--;
         }
     }
@@ -108,7 +108,6 @@ void EnterTrigger(bool X)  //Функция для задания триггер
         cin >> trigger;
         cin.clear();
     }
-    printf("Триггер:%s", trigger.c_str());
 }
 
 void EnterName2(bool X)     //Аналогичная предыдущей функция для второго файла
